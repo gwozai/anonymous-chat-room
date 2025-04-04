@@ -15,6 +15,7 @@
         "passwd": "Setting Password",
         "capacity": "Setting Capacity"
     },
+    "Share":"Share",
     "mic":"Micphone",
     "camera": "Camera",
     "screenShare": "Screen Share",

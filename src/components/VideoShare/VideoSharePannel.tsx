@@ -103,9 +103,9 @@ export function ShareVideoPannel({showIcon,showText, ...props}: any) {
                         <div className="modal-box relative bg-primary form-control">
                             <label htmlFor="shareVideoPannel" className="btn btn-accent btn-sm btn-circle absolute right-2 top-2 ">✕</label>
                             {
-                                <div className="pl-4 pr-12">
+                                <div className="pl-4 pr-12 space-y-2">
         
-                                        <label className="label cursor-pointer justify-between">
+                                        <label className="label w-full flex justify-between cursor-pointer justify-between">
                                             <span className="label-text text-white sm:text-lg">Url: </span>
                                             <input
                                                 className=" w-[15rem] input-sm sm:input-md rounded-lg border-gray-200 bg-white p-3 text-gray-700 shadow-sm transition focus:border-white focus:outline-none focus:ring focus: ring-secondary-focus"
@@ -121,7 +121,7 @@ export function ShareVideoPannel({showIcon,showText, ...props}: any) {
                                         </label>
                                         {
                                              process.env.NEXT_PUBLIC_RTMPURL &&  process.env.NEXT_PUBLIC_FLVURL &&
-                                            <div className=" w-full justify-between flex p-1">
+                                            <div className=" w-full flex justify-between justify-between ">
                                                 <div className=" text-white sm:text-lg flex items-center"><span>Copy:</span> </div>
                                                 <div className="tooltip" data-tip="url to publish your video by rtmp">
                                                     <div className="btn btn-primary text-white" onClick={copyRTMPurl}> publish url</div>
@@ -136,7 +136,7 @@ export function ShareVideoPannel({showIcon,showText, ...props}: any) {
 
                             <div className=" w-full flex justify-center">
                                 <label htmlFor="shareVideoPannel" className="btn btn-md btn-secondary border-none mt-2" onClick={updateVideoShare}>
-                                    Share!
+                                  {t('Share')!}
                                 </label>
                             </div>
                         </div>
