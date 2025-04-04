@@ -1,5 +1,5 @@
 import { useObservableState } from "@/livekit-react-offical/hooks/internal";
-import { RoomInfo } from "@/pages/api/info";
+import type { RoomInfo } from "@/pages/api/info";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { setIntervalAsync, clearIntervalAsync } from "set-interval-async";
 import { roominfo$ } from "../lib/observe/RoomInfoObs";

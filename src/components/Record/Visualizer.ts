@@ -48,7 +48,7 @@ export const setupVisualizer = (
 
 
 const rafIter = (): AsyncIterableIterator<void> => {
-    let id: number
+    let id: number = 0
 
     const obj = {
         async next() {

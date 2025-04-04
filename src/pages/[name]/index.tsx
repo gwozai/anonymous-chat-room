@@ -162,7 +162,7 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
       e2ee: undefined,
     };
 
-    if (audioContext) setting = { ...setting, expWebAudioMix: { audioContext } };
+    if (audioContext) setting = { ...setting };
     return setting;
   }, [userChoices, hq, audioContext]);
 

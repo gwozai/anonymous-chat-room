@@ -3111,9 +3111,9 @@ react-is@^16.13.1:
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
 react-typist-component@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/react-typist-component/-/react-typist-component-1.0.5.tgz#e89f5e08919587da1aa6809670d48d6999d77cb0"
-  integrity sha512-UMMwkHFU7qiBA+w/knNMdNZ5lR184pb2cKOjBH7qZpW7ZVWxFZ+iwXXDwz+JpvO/iyGbMnfS8l643LDmcnE37Q==
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-typist-component/-/react-typist-component-1.1.1.tgz#ba6c487a26546149ec796400feb3ac50562096cc"
+  integrity sha512-hTLdkph9jXGIDZ28TS0oninJfpU4wr5HFp5xEv6CARVoXvwYHFwdIAZ0J8hKRuPI8AG2eYNusUpO2QwWZ7G8qA==
 
 react@18.3.1:
   version "18.3.1"
