@@ -110,13 +110,21 @@ import { DenoiseMethod } from '@/lib/types';
         // 只有livekit.cloud才能使用Krisp降噪
         if(process.env.NEXT_PUBLIC_IS_USE_CLOUD !== 'true') return
         const denoiseMethodStr = localStorage.getItem('denoiseMethod')
-        debugger
+        
         const denoiseMethodObj: DenoiseMethod = denoiseMethodStr ? JSON.parse(denoiseMethodStr) : {...defaultAudioSetting.denoiseMethod}
         // enable Krisp by default
         setNoiseFilterEnabled(denoiseMethodObj.krispNoiseDenoise);
         console.log('update Krisp', denoiseMethodObj.krispNoiseDenoise)
       }, [denoiseMethod.krispNoiseDenoise]);
-  
+
+    React.useEffect(() => {
+        const denoiseMethodStr = localStorage.getItem('denoiseMethod')
+        
+        const denoiseMethodObj: DenoiseMethod = denoiseMethodStr ? JSON.parse(denoiseMethodStr) : {...defaultAudioSetting.denoiseMethod}
+        denoiseMethod$.next(denoiseMethodObj)
+    }, []);  
+
+      
     const layoutContext = useCreateLayoutContext();
   
     const screenShareTracks = tracks
@@ -237,7 +245,7 @@ import { DenoiseMethod } from '@/lib/types';
                 camera: process.env.NEXT_PUBLIC_USE_VIDEO === "true", chat: true, shareVideo: process.env.NEXT_PUBLIC_USE_SHAREVIDEO === "true" && !(focusTrack && !isShareVideo) }} />
             </div>
             <Chat
-              className='fixed  h-[80%] sm:h-full bottom-[4rem] sm:bottom-auto right-0 sm:right-auto sm:relative rounded-lg shadow-xl bg-secondary-focus p-2 flex flex-col-reverse'
+              className='fixed  h-[80%] sm:h-full bottom-[4rem] sm:bottom-auto right-0 sm:right-auto sm:relative rounded-lg shadow-xl bg-info p-2 flex flex-col-reverse'
               style={{ display: widgetState.showChat ? 'flex' : 'none' }}
               messageFormatter={chatMessageFormatter}
               messageEncoder={chatMessageEncoder}

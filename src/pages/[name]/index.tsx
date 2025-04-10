@@ -12,23 +12,42 @@ import { LogLevel, RoomOptions, ExternalE2EEKeyProvider, Room } from 'livekit-cl
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { use, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DebugMode } from '../../lib/Debug';
 import { PreJoin, LocalUserChoices } from '@/components/MyPreJoin';
 import { useServerUrl } from '../../lib/client-utils';
 import { log } from '@livekit/components-core';
 import { defaultAudioSetting, publishDefaults } from '@/lib/const';
-import { TokenResult } from '@/lib/types';
+import { RoomHistryType, TokenResult } from '@/lib/types';
 import { curState, curState$ } from '@/lib/observe/CurStateObs';
 import { WebAudioContext } from '@/lib/context/webAudioContex';
 import { useSetContext } from '@/lib/context/setContext';
-import { randomBytes, randomUUID } from 'crypto';
+import { useTranslation } from 'react-i18next';
 log.setDefaultLevel(LogLevel.warn);
 const Home: NextPage = () => {
   const router = useRouter();
   const { name: roomName } = router.query;
 
   const [preJoinChoices, setPreJoinChoices] = useState<LocalUserChoices | undefined>(undefined);
+  const [defaultOpt, setDefaultOpt] = useState({
+    username: '',
+    audioEnabled: true,
+    audioDeviceId: '',
+    passwd: '',
+  });
+
+  useEffect(() => {
+    //  获取url中query参数
+    const { passwd, username } = router.query;
+    if(passwd || username){
+        const ttt = {
+            ...defaultOpt,
+            passwd: passwd as string,
+            username: username as string, 
+            }
+        setDefaultOpt(ttt)
+    }
+  }, [router]);
 
   return (
     <>
@@ -63,10 +82,7 @@ const Home: NextPage = () => {
             <PreJoin
               roomName={roomName as string}
               onError={(err) => console.log('error while setting up prejoin', err)}
-              defaults={{
-                username: '',
-                audioEnabled: true,
-              }}
+              defaults={defaultOpt}
               onSubmit={(values) => {
                 console.log('Joining with: ', values);
                 setPreJoinChoices(values);
@@ -88,6 +104,7 @@ type ActiveRoomProps = {
   onLeave?: () => void;
 };
 const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
+  const { t, i18n } = useTranslation();
   // const toast = useRef<HTMLDivElement>(null);
   //get token
   const [token, setToken] = useState<TokenResult | undefined>(undefined);
@@ -142,6 +159,20 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
       setTimeout(() => {
         router.push('/');
       }, 2000);
+    }).then(() => {
+        // 保存会议信息
+        let his: RoomHistryType[] = JSON.parse(localStorage.getItem('roomHistory') || JSON.stringify([]));
+        if(his.length > 10){
+            his.shift();
+        }
+        // 清理同名会议
+        his = his.filter((item) => item.roomName !== roomName);
+        his.push({
+            roomName: roomName,
+            passwd: userChoices.passwd,
+            username: userChoices.username,
+        })
+        localStorage.setItem('roomHistory', JSON.stringify(his));
     });
   }, [roomName]);
 
@@ -170,7 +201,11 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
   let e2eeOptions = undefined;
   const keyProvider = useMemo(() => new ExternalE2EEKeyProvider(), []);
   e2eeOptions = useMemo(() => {
-    if (!!process.env.NEXT_PUBLIC_E2EETOKEN) keyProvider.setKey(process.env.NEXT_PUBLIC_E2EETOKEN);
+    if(process.env.NEXT_PUBLIC_DISABLE_E2EE === 'true' || !userChoices.passwd){
+      return undefined;
+    }
+
+    keyProvider.setKey(userChoices.passwd);
 
     const opt =
       typeof window !== 'undefined'
@@ -180,11 +215,11 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
           }
         : undefined;
     return opt;
-  }, [keyProvider, process.env.NEXT_PUBLIC_E2EETOKEN]);
-
+  }, [keyProvider, userChoices.passwd]);
+  
   roomOptions.e2ee = e2eeOptions;
   const room = useMemo(() => new Room(roomOptions), [roomOptions]);
-  !!e2eeOptions && process.env.NEXT_PUBLIC_E2EETOKEN === 'true' && room.setE2EEEnabled(true);
+  !!e2eeOptions && room.setE2EEEnabled(true);
 
   return (
     <div className="w-full top-16 relative" style={{ height: 'calc(100% - 4rem)' }}>
@@ -207,7 +242,7 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
       )}
 
       {/* toast */}
-      {showError && <MyErrorToast>{errorMsg}</MyErrorToast>}
+      {showError && <MyErrorToast>{t(errorMsg)}</MyErrorToast>}
     </div>
   );
 };

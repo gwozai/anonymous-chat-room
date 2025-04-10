@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { use, useMemo } from 'react';
 import Link from 'next/link'
 import Typist from 'react-typist-component';
 // import { HistoryCard } from '@/components/HistoryCard';
 import { theme } from '@/lib/const';
 import { withTranslation, WithTranslation } from "react-i18next"
-
+import { RoomHistryType } from '@/lib/types';
 class HomeComponent extends React.Component<WithTranslation> {
   state = {
     roomIdText: '',
-    cursor: "|"
+    cursor: "|",
+    isClient: false,
   };
   constructor(props: any) {
     super(props);
@@ -21,10 +22,16 @@ class HomeComponent extends React.Component<WithTranslation> {
 //     this.setState({cursor: this.state.cursor === "|" ? "*" : "|"})
 // }, 300);
 
+    componentDidMount() {
+    // 仅在客户端执行
+    this.setState({ isClient: true });
+  }
   render() {
     const { t, i18n } = this.props;
+    const roomHistory = this.state.isClient ? JSON.parse(localStorage.getItem('roomHistory') || '[]') : [];
+    const isMobile = false
     return (
-        <div className='Home flex justify-center items-center text-center mx-auto h-full w-full'>
+        <div className='Home flex flex-col justify-center space-y-4 items-center text-center mx-auto h-full w-full'>
             <div className='flex flex-col text-center justify-center'>
                 {
                     i18n.language=='en' ?
@@ -68,7 +75,40 @@ class HomeComponent extends React.Component<WithTranslation> {
                 </Link>
                 </div>
             </div>
-            <footer className=' text-white gap-2 fixed bottom-0 text-xs sm:text-xl h-12 w-full py-1 px-2 flex items-center justify-center text-center bg-primary'>
+            {/* 访问过的房间历史列表 */}
+           {
+            roomHistory.length>0 &&
+            <div className=' w-1/2'>
+                <div className="divider">{t('history')}</div>
+            </div>
+           }
+            <div className={`flex justify-center grid ${isMobile? 'grid-cols-2':'grid-cols-3'} `}>
+                {roomHistory.map((item: RoomHistryType) => (
+                    <Link key={item.roomName} href={`/${item.roomName}?passwd=${item.passwd}&username=${item.username}`}>
+                        <div className="m-2 flex flex-col justify-center item-start space-y-2 bg-white/50 hover:bg-white/70 transition-colors duration-300 ease-in-out cursor-pointer 
+                         rounded-lg p-2 hover:shadow-lg max-w-md">
+                            <div className='flex space-x-2'>
+                                <div className='text-right'>
+                                    {t('room.roomName') + ': ' }
+                                </div>
+                                <div>
+                                    {item.roomName}
+                                </div>
+                            </div>
+                            <div className='flex space-x-2'>
+                                <div className='text-right'>
+                                    {t('username') + ': ' }
+                                </div>
+                                <div>
+                                    {item.username}
+                                </div>
+                            </div>
+                        </div>
+                    </Link>
+                ))}
+            </div>
+
+            <footer className='text-white gap-2 fixed bottom-0 text-xs sm:text-xl h-12 w-full py-1 px-2 flex items-center justify-center text-center bg-primary'>
                 Hosted on 
                 <a className=' text-accent-focus ' href="https://livekit.io/cloud?ref=meet" rel="noopener">
                 LiveKit Cloud

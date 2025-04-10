@@ -58,49 +58,54 @@ export function RoomInfo({ roomName, join }: Props) {
     if(!roomName) return null
 
     return (
-        <div className="flex justify-around w-full">
+        <div className="flex flex-col w-full space-y-2">
 
-            <div className="flex flex-col items-center">
-                <span className="text-lg">
-                {t('room.roomName')}
-                </span>
+            <div className="flex justify-center w-full space-x-2">
+                <div className="flex flex-col items-center">
+                    <span className="text-lg text-nowrap">
+                    {t('room.roomName')}
+                    </span>
 
-                <span className=" font-bold text-6xl font-mono">{humanRoomName}</span>
+                    <span className=" font-bold text-6xl font-mono">{humanRoomName}</span>
 
+                </div>
             </div>
-
-            <div className="pl-2  flex flex-col items-center">
-                <span className="text-lg">
-                {t('room.membersNum')}
-                </span>
-
-                <span className=" text-6xl font-mono countdown">
-                    <span  style={{ "--value": roomInfo? roomInfo.num_participants: 0 } as any}></span>
-                </span>
-            </div>
-
-            {
-                roomInfo.maxParticipants > 0 && (
+            <div className="flex justify-around w-full space-x-4">
                 <div className="pl-2  flex flex-col items-center">
-                    <span className="text-lg">
-                        {t('room.capacity')}
+                    <span className="text-lg text-nowrap">
+                    {t('room.membersNum')}
                     </span>
 
                     <span className=" text-6xl font-mono countdown">
-                        <span  style={{ "--value": roomInfo.maxParticipants } as any}></span>
+                        <span  style={{ "--value": roomInfo? roomInfo.num_participants: 0 } as any}></span>
                     </span>
                 </div>
-                )
-            }
+                {
+                    roomInfo.maxParticipants > 0 && (
+                    <div className="pl-2  flex flex-col items-center">
+                        <span className="text-lg">
+                            {t('room.capacity')}
+                        </span>
 
-            {
-            roomInfo.hasPasswd && (
-                <div className="pl-2 flex flex-col justify-center items-center">
-                    <span className="text-lg text-primary ">
-                        ⚠️ {t('room.needPasswd')}
-                    </span>
-                </div>
-            )}
+                        <span className=" text-6xl font-mono countdown">
+                            <span  style={{ "--value": roomInfo.maxParticipants } as any}></span>
+                        </span>
+                    </div>
+                    )
+                }
+
+                {
+                roomInfo.hasPasswd && (
+                    <div className="pl-2 flex flex-col justify-center items-center">
+                        <span className="text-lg text-primary ">
+                            ⚠️
+                        </span>
+                        <span className="text-lg ">
+                            {t('room.needPasswd')}
+                        </span>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

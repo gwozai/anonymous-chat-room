@@ -166,11 +166,11 @@ const isjoin = useMemo(() => {
             <input type="checkbox" id="infoModal" className="modal-toggle" />
             <label htmlFor='infoModal' className="modal h-screen">
             <label
-                className="modal-box relative bg-primary"
+                className="modal-box max-w-[1000px] w-fit  relative bg-primary"
                 htmlFor=''
             >
 
-                <div>
+                <div className="w-fit">
                     <RoomInfo roomName={humanRoomName} join={isjoin}/>
                     <div className=' divider'></div>
                     <span className=' text-lg'>{ t('room.isAdmin') + ": " + (mcurState.isAdmin ? "yes": "no")}</span>

@@ -35,3 +35,9 @@ export interface AudioSetting  {
     noiseSuppression: boolean,
     denoiseMethod: DenoiseMethod
 }
+
+export interface RoomHistryType {
+    roomName: string,
+    passwd: string,
+    username: string,
+}

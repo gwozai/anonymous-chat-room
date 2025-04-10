@@ -9,10 +9,8 @@ import { useMediaDevices } from '@livekit/components-react';
 import { TrackToggle } from '@livekit/components-react';
 import { log } from '@livekit/components-core';
 import { RoomInfo } from './RoomInfo';
-import { defaultAudioSetting } from '@/lib/const';
-import { useCurState } from '@/lib/hooks/useCurState';
 import { useTranslation } from 'react-i18next';
-
+import { isMobileBrowser } from '@livekit/components-core';
 /** @public */
 export type LocalUserChoices = {
     username: string;
@@ -20,8 +18,6 @@ export type LocalUserChoices = {
     audioEnabled: boolean;
     videoDeviceId: string;
     audioDeviceId: string;
-    e2ee: boolean;
-    sharedPassphrase: string;
     passwd: string;
   };
   
@@ -31,8 +27,6 @@ export type LocalUserChoices = {
     audioEnabled: true,
     videoDeviceId: '',
     audioDeviceId: '',
-    e2ee: false,
-    sharedPassphrase: '',
     passwd: ''
   };
   
@@ -55,7 +49,6 @@ export type LocalUserChoices = {
     micLabel?: string;
     camLabel?: string;
     userLabel?: string;
-    showE2EEOptions?: boolean;
   }
   
   /** @alpha */
@@ -219,11 +212,10 @@ export type LocalUserChoices = {
     // micLabel = 'Microphone',
     // camLabel = 'Camera',
     // userLabel = 'Username',
-    showE2EEOptions = false,
     ...htmlProps
   }: PreJoinProps) {
-
-    const [passwd, setPasswd] = React.useState("");
+    const isMobile = React.useMemo(() => isMobileBrowser(), []);
+    const [passwd, setPasswd] = React.useState(defaults.passwd ?? '');
     const [userChoices, setUserChoices] = React.useState(DEFAULT_USER_CHOICES);
     const [username, setUsername] = React.useState(
       defaults.username ?? DEFAULT_USER_CHOICES.username,
@@ -238,11 +230,6 @@ export type LocalUserChoices = {
       defaults.audioEnabled ?? DEFAULT_USER_CHOICES.audioEnabled,
     );
     const [audioDeviceId, setAudioDeviceId] = React.useState<string>(initialAudioDeviceId);
-    const [e2ee, setE2ee] = React.useState<boolean>(defaults.e2ee ?? DEFAULT_USER_CHOICES.e2ee);
-    const [sharedPassphrase, setSharedPassphrase] = React.useState<string>(
-      defaults.sharedPassphrase ?? DEFAULT_USER_CHOICES.sharedPassphrase,
-    );
-  
     const tracks = usePreviewTracks(
       {
         audio: audioEnabled ? { deviceId: initialAudioDeviceId } : false,
@@ -250,6 +237,14 @@ export type LocalUserChoices = {
       },
       onError,
     );
+
+    React.useEffect(() => {
+        console.log(defaults)
+        setPasswd(defaults.passwd ?? '');
+        setUsername(defaults.username ?? DEFAULT_USER_CHOICES.username);
+        setVideoEnabled(defaults.videoEnabled?? DEFAULT_USER_CHOICES.videoEnabled);
+        setAudioEnabled(defaults.audioEnabled?? DEFAULT_USER_CHOICES.audioEnabled);
+    }, [defaults.username, defaults.passwd, defaults.videoEnabled, defaults.audioEnabled]);
   
     const videoEl = React.useRef(null);
   
@@ -303,12 +298,10 @@ export type LocalUserChoices = {
         videoDeviceId,
         audioEnabled,
         audioDeviceId,
-        e2ee,
-        sharedPassphrase,
         passwd: passwd
       };
-      setUserChoices(newUserChoices);
       setIsValid(handleValidation(newUserChoices));
+      setUserChoices(newUserChoices);
     }, [
       username,
       videoEnabled,
@@ -316,17 +309,9 @@ export type LocalUserChoices = {
       audioEnabled,
       audioDeviceId,
       videoDeviceId,
-      sharedPassphrase,
-      e2ee,
+      passwd
     ]);
-  
-    const mcurState = useCurState()
     const { t, i18n } = useTranslation()
-    
-    const needpass = React.useMemo(() => {
-        
-        return mcurState.hassPass;
-      }, [mcurState.hassPass]);
 
     function handleSubmit(event: React.FormEvent) {
       event.preventDefault();
@@ -366,7 +351,7 @@ export type LocalUserChoices = {
           </div>
         </div>
   
-        <form className="flex flex-wrap justify-center mt-4 gap-2">
+        <form className={`flex flex-wrap justify-center mt-4 gap-2 ${isMobile ? 'flex-col items-center': ''}`}>
           <input
             className=" max-w-full rounded-lg border-gray-200 bg-white p-3 text-gray-700 shadow-sm transition focus:border-white focus:outline-none focus:ring focus: ring-secondary-focus"
             id="username"
@@ -377,44 +362,19 @@ export type LocalUserChoices = {
             onChange={(inputEl) => setUsername(inputEl.target.value)}
             autoComplete="off"
           />
-        {
-           needpass && 
-                <input
-                  className=" max-w-full rounded-lg border-gray-200 bg-white p-3 text-gray-700 shadow-sm transition focus:border-white focus:outline-none focus:ring focus: ring-secondary-focus"
-                  id="passwd"
-                  name="passwd"
-                  type="text"
-                  placeholder="enter passwd"
-                  onChange={(inputEl) => setPasswd(inputEl.target.value)}
-                  autoComplete="off"
-                />
-            
-        }
-
-        {showE2EEOptions && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
-            <input
-                id="use-e2ee"
-                type="checkbox"
-                checked={e2ee}
-                onChange={(ev) => setE2ee(ev.target.checked)}
-            ></input>
-            <label htmlFor="use-e2ee">Enable end-to-end encryption</label>
-            </div>
-            {e2ee && (
-            <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
-                <label htmlFor="passphrase">Passphrase</label>
-                <input
-                id="passphrase"
-                type="password"
-                value={sharedPassphrase}
-                onChange={(ev) => setSharedPassphrase(ev.target.value)}
-                />
-            </div>
-            )}
-        </div>
-        )}
+        
+        {/* 使用密码后若未设置NEXT_PUBLIC_DISABLE_E2EE，则开启e2ee, e2ee的key即为密码 */}
+        <input
+            className=" max-w-full rounded-lg border-gray-200 bg-white p-3 text-gray-700 shadow-sm transition focus:border-white focus:outline-none focus:ring focus: ring-secondary-focus"
+            id="passwd"
+            name="passwd"
+            type="password"
+            defaultValue={passwd}
+            placeholder="enter passwd if you need"
+            onChange={(inputEl) => {setPasswd(inputEl.target.value)}}
+            autoComplete="off"
+        />
+        
 
         <button
         className="btn btn-primary rounded-lg text-white h-[48px]  w-fit border-none font-bold"

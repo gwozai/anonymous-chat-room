@@ -15,6 +15,11 @@
         "passwd": "Setting Password",
         "capacity": "Setting Capacity"
     },
+    "api":{
+        "NameIsUsed": "Room name is used",
+        "PasswordError": "Password Error",
+        "RoomFull": "Room is full"
+    },
     "needCloud": "need use office cloud service",
     "Share":"Share",
     "mic":"Micphone",
@@ -27,5 +32,6 @@
     "username": "Username",
     "Go":"Go",
     "done":"Done",
-    "home": "Home"
+    "home": "Home",
+    "history": "History"
 }

@@ -15,7 +15,6 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
     const roominfo_after_enter = useRoomInfo()
     const denoiseSetting = useObservableState(denoiseMethod$, {...defaultAudioSetting.denoiseMethod});
     const mcurState = useCurState()
-    const [passwd, setPasswd] = useState("");
     const [capacity, setCapacity] = useState("");
     const [isUseKrispDenoise, setIsUseKrispDenoise] = useState(false);
     const [localDenoiseConfig, setLocalDenoiseConfig] = useState<DenoiseMethod>( {...defaultAudioSetting.denoiseMethod});
@@ -30,6 +29,11 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
         setCurShareVideoPrest(JSON.parse(s || '{}'))
     }, [])
     
+    useEffect(() => {
+        setLocalDenoiseConfig(denoiseSetting)
+        setIsUseKrispDenoise(denoiseSetting.krispNoiseDenoise)
+    }, [denoiseSetting])
+
     const isnumber = (nubmer: string) => {
         const re = /^[1-9]\d*$/;//判断字符串是否为数字//判断正整数/[1−9]+[0−9]∗]∗/ 
         if (!re.test(nubmer)) {
@@ -108,7 +112,6 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
             if (!url) return undefined
             const body = {
                 metadata: {
-                    passwd: passwd,
                     time: new Date().getTime(),
                     maxParticipants: Number(capacity)
                 } as RoomMetadata,
@@ -126,7 +129,7 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
             const { error } = await response.json();
             throw error;
         },
-        [roominfo_after_enter.room_name, passwd, capacity]
+        [roominfo_after_enter.room_name, capacity]
     );
 
     return (
@@ -149,20 +152,6 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
                     {
                         mcurState.isAdmin &&
                         <div className="pl-4 pr-12 space-y-2">
-  
-                                <label className="label w-full cursor-pointer justify-between p-2">
-                                    <span className="label-text text-white sm:text-lg">{t('setting.passwd')}</span>
-                                    <input
-                                        className=" w-[10rem] input-sm sm:input-md rounded-lg border-gray-200 bg-white p-3 text-gray-700 shadow-sm transition focus:border-white focus:outline-none focus:ring focus: ring-secondary-focus"
-                                        id="passwd"
-                                        name="passwd"
-                                        type="text"
-                                        placeholder={t('room.passwd')}
-                                        onChange={(inputEl) => setPasswd(inputEl.target.value)}
-                                        autoComplete="off"
-                                    />
-                                </label>
-      
                                 <label className="label w-full cursor-pointer justify-between p-2">
                                     <span className="label-text text-white sm:text-lg">{t('setting.capacity')}</span>
                                     <input
@@ -177,7 +166,6 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
                                         autoComplete="off"
                                     />
                                 </label>
-                        
                         </div>
                     }
 

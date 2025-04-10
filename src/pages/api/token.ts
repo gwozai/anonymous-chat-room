@@ -5,7 +5,6 @@ import type { AccessTokenOptions, VideoGrant } from 'livekit-server-sdk';
 import { TokenResult, RoomMetadata } from '../../lib/types';
 import { lru } from '@/lib/lru';
 import { error } from 'console';
-
 const apiKey = process.env.LIVEKIT_API_KEY;
 const apiSecret = process.env.LIVEKIT_API_SECRET;
 const wsUrl = process.env.LIVEKIT_URL;
@@ -61,33 +60,50 @@ export default async function handleToken(req: NextApiRequest, res: NextApiRespo
         const roomLRUItem: RoomMetadata = lru.get(roomName)
         if(roomLRUItem != undefined && roomLRUItem.maxParticipants > 0 &&
          participants.length >= roomLRUItem.maxParticipants){
-            return res.status(500).json({ error: 'room is full'})
+            return res.status(500).json({ error: 'api.RoomFull'})
         }
+        console.log('roomLRUItem:', roomLRUItem)
         if(roomLRUItem.passwd != undefined && roomLRUItem.passwd != "" && roomLRUItem.passwd != passwd){
-            return res.status(500).json({ error: 'passwd error'})
+            return res.status(500).json({ error: 'api.PasswordError'})
         }
-    }catch{
+        // 检查是否有相同名称的用户
+        for(const participant of participants){
+            if(participant.identity == identity){
+                return res.status(500).json({ error: 'api.NameIsUsed'})
+            }
+        }
+    }catch(e: any){
+        console.log(e)
+        if(e?.code === 'UND_ERR_CONNECT_TIMEOUT'){
+            return res.status(500).json({ error: 'api.Timeout'})
+        }
         // If room doesn't exist, user is room admin
         grant.roomAdmin = true;
         // set no passwrd
         if(lru.get(roomName)){
             lru.delete(roomName)
         }
-        const t: RoomMetadata = {passwd: "", time: new Date().getTime(), maxParticipants: defaultMaxParticipants}
+        const t: RoomMetadata = {passwd: passwd, time: new Date().getTime(), maxParticipants: defaultMaxParticipants}
         lru.set(roomName, t)
-
+        roomService.updateRoomMetadata(
+            roomName,
+            JSON.stringify(t)
+        )
+        // console.log('metadata: ', metadata)
         try {
-          metadataObj = metadata ? {...JSON.parse(metadata), admin: true} : {admin: true};
+          metadataObj = metadata ? {...JSON.parse(metadata)} : {};
         } catch (error) {
-          metadataObj = {admin: true};
+          console.log('set metadata error:',error)
+          metadataObj = {};
         }
 
+        metadataObj = {...metadataObj, admin: true}
         metadataProcess = JSON.stringify(metadataObj)
-    
+
         // for passwd debug
-        // console.log(metadataProcess)
+        console.log('room metadata:', t)
         console.log(`set passwd for ${roomName}`)
-        const t2 = lru.get(roomName) as RoomMetadata;
+        // const t2 = lru.get(roomName) as RoomMetadata;
         // console.log(`get passwd for ${roomName}, passwd: ${t2.passwd}`)
     }
 
