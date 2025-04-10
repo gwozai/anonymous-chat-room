@@ -8,6 +8,7 @@ import { isMobileBrowser } from '@livekit/components-core';
 import { useRouter } from 'next/router';
 import { useTranslation, Trans } from 'react-i18next'
 import LanguageIcon from './Icons/LanguageIcon';
+import ShareIcon from './Icons/ShareIcon';
 import { MyInfoToast } from './Toast';
 import { useShowToast } from '@/lib/hooks/useToast';
 export interface TopBarProps extends React.HTMLAttributes<SVGElement> {
@@ -114,7 +115,7 @@ const isjoin = useMemo(() => {
         {/* Share Icon */}
         <div className=" animate__animated  animate__fadeIn">
         <div className="btn btn-ghost normal-case  text-center text-xl " onClick={share}>
-            <LanguageIcon className='icon  text-primary-focus' fill="currentColor"/>
+            <ShareIcon className='icon  text-primary-focus' fill="currentColor"/>
         </div>
         </div>
 
