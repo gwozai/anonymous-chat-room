@@ -206,10 +206,10 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
 
   // using e2ee
   const keyProvider = useMemo(() => new ExternalE2EEKeyProvider(), []);
-  useEffect(() => {
+  
+  const room = useMemo(() => {
     if(process.env.NEXT_PUBLIC_DISABLE_E2EE === 'true' || !userChoices.passwd){
         roomOptions.e2ee = undefined;
-      return;
     }
 
     keyProvider.setKey(userChoices.passwd);
@@ -222,14 +222,10 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
           }
         : undefined;
     roomOptions.e2ee = opt;
-
-  }, [keyProvider, userChoices.passwd]);
-  
-  const room = useMemo(() => {
     const r = new Room(roomOptions)
     !!roomOptions.e2ee && r.setE2EEEnabled(true);
     return r;
-  }, [roomOptions]);
+  }, [userChoices.passwd, keyProvider]);
 
   return (
     <div className="w-full top-16 relative" style={{ height: 'calc(100% - 4rem)' }}>

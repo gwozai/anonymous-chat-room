@@ -85,14 +85,22 @@ export default async function handleToken(req: NextApiRequest, res: NextApiRespo
         }
         const t: RoomMetadata = {passwd: passwd, time: new Date().getTime(), maxParticipants: defaultMaxParticipants, numOfPaticipants: 0}
         lru.set(roomName, t)
+        
+        const rooms = await roomService.listRooms()
+        if(rooms.findIndex((room)=> room.name === roomName) >= 0){
+            roomService.updateRoomMetadata(
+                'roomName',
+                JSON.stringify(t)
+            )
+        }else{
+            roomService.createRoom({
+                name: roomName,
+                emptyTimeout: 30,
+                maxParticipants: defaultMaxParticipants,
+                metadata: JSON.stringify(t),
+            })
+        }
 
-        // create room
-        roomService.createRoom({
-            name: roomName,
-            emptyTimeout: 30,
-            maxParticipants: defaultMaxParticipants,
-            metadata: JSON.stringify(t)
-        })
         // console.log('metadata: ', metadata)
         try {
           metadataObj = metadata ? {...JSON.parse(metadata)} : {};
