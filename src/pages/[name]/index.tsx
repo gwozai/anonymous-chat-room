@@ -24,6 +24,7 @@ import { WebAudioContext } from '@/lib/context/webAudioContex';
 import { useSetContext } from '@/lib/context/setContext';
 import { useTranslation } from 'react-i18next';
 import { useCurState } from '@/lib/hooks/useCurState';
+import { formatter } from '@/lib/chat-utils/formatter';
 log.setDefaultLevel(LogLevel.warn);
 const Home: NextPage = () => {
   const router = useRouter();
@@ -130,7 +131,6 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
       });
       if (response.status === 200) {
         const token = (await response.json()) as TokenResult;
-        debugger
         curState$.next({
             ...mcurState,
             token: token
@@ -242,7 +242,7 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
           data-lk-theme="default"
         >
           <WebAudioContext.Provider value={audioContext}>
-            <VideoConference chatMessageFormatter={formatChatMessageLinks} />
+            <VideoConference chatMessageFormatter={formatter} />
           </WebAudioContext.Provider>
           <DebugMode logLevel={LogLevel.warn} />
         </LiveKitRoom>
