@@ -11,7 +11,7 @@ const wsUrl = process.env.LIVEKIT_URL;
 
 export const createToken = async (userInfo: AccessTokenOptions, grant: VideoGrant) => {
   const at = new AccessToken(apiKey, apiSecret, userInfo);
-  at.ttl = '5m';
+  at.ttl = '24h';
   at.addGrant(grant);
   return await at.toJwt();
 };

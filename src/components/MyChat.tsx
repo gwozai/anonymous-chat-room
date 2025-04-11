@@ -130,6 +130,8 @@ export function Chat({ messageFormatter, ...props }: ChatProps) {
                 const formData = new FormData();
                 formData.append('file', file);
 
+                formData.append('room', mcurState.roomName || '');
+
                 try {
                     const response = await fetch('/api/upload', {
                         method: 'POST',

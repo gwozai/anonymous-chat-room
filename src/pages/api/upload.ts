@@ -45,6 +45,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       });
 
+      if(!(fields?.room?.length)){
+        return res.status(400).json({ error: 'Room name is required' });
+      }
+      const roomName =fields.room[0];
+      if(!roomName){
+        return res.status(400).json({ error: 'Room name is required' });
+      }
+      console.log('roomName', roomName);
+
       let file = undefined
       if(Array.isArray(files.file)){
         if(files.file.length === 0){
@@ -64,9 +73,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (!allowedTypes.includes(file.mimetype || '')) {
         return res.status(400).json({ error: 'Only image files are allowed' });
       }
-
       // 处理文件保存逻辑
-      const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads', roomName);
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
@@ -77,7 +85,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await fs.promises.copyFile(file.filepath, newPath);
 
       return res.status(200).json({
-        url: `/uploads/${fileName}`,
+        url: `/uploads/${roomName}/${fileName}`,
       });
     } catch (error) {
       console.error('Upload error:', error);
