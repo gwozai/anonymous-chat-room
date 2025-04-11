@@ -117,9 +117,14 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
                 } as RoomMetadata,
                 roomName: roomName
             };
+            console.log('mcurState',mcurState)
+            debugger
             const response = await fetch(url, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json",
+                    "authorization": mcurState.token?.accessToken ? 
+                    ("Bearer " + mcurState.token?.accessToken) : ''
+                 },
                 body: JSON.stringify(body),
             });
             if (response.status === 200) {
@@ -129,7 +134,7 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
             const { error } = await response.json();
             throw error;
         },
-        [roominfo_after_enter.room_name, capacity]
+        [roominfo_after_enter.room_name, capacity, mcurState]
     );
 
     return (

@@ -26,6 +26,7 @@
     "daisyui": "5.0.12",
     "detectrtc": "^1.4.1",
     "emoji-mart": "^5.5.2",
+    "formidable": "^3.5.2",
     "i18next": "^23.2.3",
     "livekit-client": "2.9.9",
     "livekit-server-sdk": "2.11.0",

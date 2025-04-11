@@ -206,7 +206,7 @@ import { DenoiseMethod } from '@/lib/types';
             const met = JSON.parse(lp.metadata as string)
             cus.isAdmin = met.admin
         }
-        curState$.next(cus)
+        curState$.next({...mcurState, ...cus})
     }, [participants.length, room.name, room.metadata, room])
 
   

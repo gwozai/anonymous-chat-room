@@ -68,7 +68,6 @@ export function ControlBar({ variation, controls, ...props }: ControlBarProps) {
   const visibleControls = { leave: true, ...controls };
 
   const localPermissions = useLocalParticipantPermissions();
-
   if (!localPermissions) {
     visibleControls.camera = false;
     visibleControls.chat = false;

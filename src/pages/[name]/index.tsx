@@ -23,6 +23,7 @@ import { curState, curState$ } from '@/lib/observe/CurStateObs';
 import { WebAudioContext } from '@/lib/context/webAudioContex';
 import { useSetContext } from '@/lib/context/setContext';
 import { useTranslation } from 'react-i18next';
+import { useCurState } from '@/lib/hooks/useCurState';
 log.setDefaultLevel(LogLevel.warn);
 const Home: NextPage = () => {
   const router = useRouter();
@@ -111,6 +112,7 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
   const [showError, setShowError] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
   const { ctx } = useSetContext();
+  const mcurState = useCurState()
   const fetchToken = useCallback(
     async (roomName: string) => {
       if (roomName === undefined) return undefined;
@@ -128,6 +130,11 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
       });
       if (response.status === 200) {
         const token = (await response.json()) as TokenResult;
+        debugger
+        curState$.next({
+            ...mcurState,
+            token: token
+        })
         setToken(token);
         return token;
       }

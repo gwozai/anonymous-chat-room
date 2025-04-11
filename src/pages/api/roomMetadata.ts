@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
+import { AccessToken, RoomServiceClient, TokenVerifier } from 'livekit-server-sdk';
 import { RoomMetadata, TokenResult } from '../../lib/types';
 import { lru } from '@/lib/lru';
 
@@ -12,7 +12,20 @@ type REQ_BODY = {
     roomName: string
     metadata?:RoomMetadata
 }
-export default async function handleToken(req: NextApiRequest, res: NextApiResponse) {
+export default async function updateRoomMetadata(req: NextApiRequest, res: NextApiResponse) {
+    // 验证 Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    // 验证 LiveKit token
+    const tv = new TokenVerifier(apiKey || '', apiSecret || '');
+    const claims = tv.verify(token);
+    if (!claims) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
 
     const { roomName, metadata } = req.body as REQ_BODY;
 
