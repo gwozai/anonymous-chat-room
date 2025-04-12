@@ -35,5 +35,6 @@
     "home": "首页",
     "history": "历史记录",
     "copySuccess": "复制分享链接成功",
-    "selectBackend": "选择livekit后端"
+    "selectBackend": "选择livekit后端",
+    "noBackend": "没有可用的livekit后端"
 }

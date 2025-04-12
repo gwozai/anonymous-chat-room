@@ -4,21 +4,34 @@ import { rnnWorkletPath, rnnoiseWasmPath, rnnoiseWasmSimdPath, speexWasmPath, sp
 import { DenoiseMethod, BackendType } from './types';
 import {  curState$ } from "@/lib/observe/CurStateObs";
 import { useCurState } from './hooks/useCurState';
+import { useShowToast } from './hooks/useToast';
+import { useTranslation } from 'react-i18next';
+// 在文件顶部添加缓存变量
+let cachedServerUrls: BackendType[] | null = null;
+
 export function useServerUrls() {
-  const [serverUrls, setServerUrls] = useState<BackendType[]>([]);
-  useEffect(() => {
-    let endpoint = `/api/url`;
-    fetch(endpoint).then(async (res) => {
-      if (res.ok) {
-        const body: BackendType[] = await res.json();
-        console.log(body);
-        setServerUrls(body);
-      } else {
-        throw Error('Error fetching server url, check server logs');
-      }
-    });
-  },[]);
-  return serverUrls;
+    const [serverUrls, setServerUrls] = useState<BackendType[]>(cachedServerUrls || []);
+    const { showToast } = useShowToast();
+    const { t, i18n } = useTranslation()
+    useEffect(() => {
+        if (cachedServerUrls) return; // 如果有缓存则直接返回
+
+        let endpoint = `/api/url`;
+        fetch(endpoint).then(async (res) => {
+            if (res.ok) {
+                const body: BackendType[] = await res.json();
+                if (body.length === 0) {
+                    showToast(t('noBackend'), true);
+                    cachedServerUrls = body; // 缓存结果
+                }
+                setServerUrls(body);
+            } else {
+                throw Error('Error fetching server url, check server logs');
+            }
+        });
+    }, []);
+
+    return serverUrls;
 }
 
 export function useBackend() {

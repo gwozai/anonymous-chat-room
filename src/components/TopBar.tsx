@@ -9,8 +9,8 @@ import { useRouter } from 'next/router';
 import { useTranslation, Trans } from 'react-i18next'
 import LanguageIcon from './Icons/LanguageIcon';
 import ShareIcon from './Icons/ShareIcon';
-import { MyInfoToast } from './Toast';
-import { useShowToast } from '@/lib/hooks/useToast';
+import { MyErrorToast, MyInfoToast } from './Toast';
+import { useShowToast, useToastState } from '@/lib/hooks/useToast';
 export interface TopBarProps extends React.HTMLAttributes<SVGElement> {
   roomName?: string;
 }
@@ -25,7 +25,8 @@ const roominfo_after_enter = useRoomInfo()
 
 const router = useRouter();
 const mcurState = useCurState()
-const { isShowToast, showToast, TostMsg } = useShowToast()
+const { showToast } = useShowToast()
+const curToastState = useToastState()
 const { t, i18n } = useTranslation()
 
 useEffect(() => {
@@ -194,9 +195,15 @@ const isjoin = useMemo(() => {
 
         {/* toast */}
         {
-        isShowToast && <MyInfoToast>
-            {TostMsg}
+        curToastState.isShowToast && !curToastState.isError && <MyInfoToast>
+            {curToastState.TostMsg}
         </MyInfoToast>
+
+      }
+      {
+            curToastState.isShowToast && curToastState.isError && <MyErrorToast>
+            {curToastState.TostMsg}
+        </MyErrorToast>
       }
     </div>
   );

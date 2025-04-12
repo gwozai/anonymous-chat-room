@@ -27,7 +27,7 @@ export function RoomInfo({ roomName, join }: Props) {
     
 
     const fetchRoomInfo = useCallback(async () => {
-        debugger
+        
             if(!prevBackend?.label) return
             const res = await fetch(`/api/info?backendLabel=${prevBackend.label}&roomName=${roomName}`);
             const _roomInfo = (await res.json()) as RoomInfo;
