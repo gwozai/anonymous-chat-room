@@ -46,15 +46,15 @@ export function useBackend() {
         curState$.next({...curState, backend});
     }, [curState]);
 
-    const prevBackend = useMemo(() => curState.backend, [curState]);
+    const curBackend = useMemo(() => curState.backend, [curState]);
     
 
 
     return {
-        prevBackend, // 直接暴露状态值
+        curBackend, // 直接暴露状态值
         backends,
         setBackend,  // 暴露更新方法
-        getPrevBackend: () => prevBackend // 改为直接返回当前状态
+        getcurBackend: () => curBackend // 改为直接返回当前状态
     };
 }
 

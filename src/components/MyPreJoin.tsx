@@ -221,7 +221,7 @@ export type LocalUserChoices = {
   }: PreJoinProps) {
     const { t, i18n } = useTranslation()
     const isMobile = React.useMemo(() => isMobileBrowser(), []);
-    const {backends, setBackend, getPrevBackend} = useBackend();
+    const {backends, setBackend, getcurBackend} = useBackend();
     const [passwd, setPasswd] = React.useState(defaults.passwd ?? '');
     const [userChoices, setUserChoices] = React.useState(DEFAULT_USER_CHOICES);
     const [username, setUsername] = React.useState(
@@ -302,10 +302,10 @@ export type LocalUserChoices = {
         if (typeof window === 'undefined') {
             return undefined; // SSR环境处理
         }
-        const prevBackend = getPrevBackend()
+        const curBackend = getcurBackend()
         if(!backends.length) return undefined;
         const defaultBackend = defaults.backend 
-            || backends.find((item) => item.label === prevBackend?.label) 
+            || backends.find((item) => item.label === curBackend?.label) 
             || (backends.length?backends[0]: undefined);
             
         return defaultBackend;
@@ -350,73 +350,75 @@ export type LocalUserChoices = {
     
 
     return (
-        <div className=" flex flex-col items-center justify-center pt-10" {...htmlProps}>
+        <div className="h-full flex flex-col items-center justify-center pt-10 overflow-y-auto" {...htmlProps}>
        {
             backends.length === 0 ? (
                 <></> 
             ):
-            <div className='flex flex-col items-center justify-center pt-10'>
-                <RoomInfo roomName={roomName} />
-                <div className=" divider my-2"></div>
-                <div className="bg-primary rounded-lg">
-                    <div className=" audio flex">
-                    <TrackToggle
-                        className=' btn btn-primary'
-                        style={{ color:"white"}}
-                    initialState={audioEnabled}
-                    source={Track.Source.Microphone}
-                    onChange={(enabled) => setAudioEnabled(enabled)}
-                    >
-                    {t('mic')}
-                    </TrackToggle>
-                    <div className=" relative flex-shrink-0 btn bg-primary border-none hover:bg-opacity-50 p-0">
-                    <MediaDeviceMenu
-                        initialSelection={audioDeviceId}
-                        kind="audioinput"
-                        disabled={!audioTrack}
-                        tracks={{ audioinput: audioTrack }}
-                        onActiveDeviceChange={(_, id) => setAudioDeviceId(id)}
-                    />
+            <div className='h-full flex flex-col items-center justify-center pt-10 space-y-2 overflow-y-auto'>
+                <div className="flex-1 min-h-0 flex flex-col items-center justify-center overflow-y-auto">
+                    <RoomInfo roomName={roomName} />
+                    <div className=" divider "></div>
+                    <div className="bg-primary rounded-lg">
+                        <div className=" audio flex">
+                        <TrackToggle
+                            className=' btn btn-primary'
+                            style={{ color:"white"}}
+                        initialState={audioEnabled}
+                        source={Track.Source.Microphone}
+                        onChange={(enabled) => setAudioEnabled(enabled)}
+                        >
+                        {t('mic')}
+                        </TrackToggle>
+                        <div className=" relative flex-shrink-0 btn bg-primary border-none hover:bg-opacity-50 p-0">
+                        <MediaDeviceMenu
+                            initialSelection={audioDeviceId}
+                            kind="audioinput"
+                            disabled={!audioTrack}
+                            tracks={{ audioinput: audioTrack }}
+                            onActiveDeviceChange={(_, id) => setAudioDeviceId(id)}
+                        />
+                        </div>
                     </div>
-                </div>
-                </div>
+                    </div>
+            
+                    <form className={`flex flex-wrap justify-center mt-4 gap-2 ${isMobile ? 'flex-col items-center': ''}`}>
+                    <input
+                        className=" max-w-full rounded-lg border-gray-200 bg-white p-3 text-gray-700 shadow-sm transition focus:border-white focus:outline-none focus:ring focus: ring-secondary-focus"
+                        id="username"
+                        name="username"
+                        type="text"
+                        defaultValue={username}
+                        placeholder={t('username')}
+                        onChange={(inputEl) => setUsername(inputEl.target.value)}
+                        autoComplete="off"
+                    />
+                    
+                    {/* 使用密码后若未设置NEXT_PUBLIC_DISABLE_E2EE，则开启e2ee, e2ee的key即为密码 */}
+                    <input
+                        className=" max-w-full rounded-lg border-gray-200 bg-white p-3 text-gray-700 shadow-sm transition focus:border-white focus:outline-none focus:ring focus: ring-secondary-focus"
+                        id="passwd"
+                        name="passwd"
+                        type="password"
+                        defaultValue={passwd}
+                        placeholder="enter passwd if you need"
+                        onChange={(inputEl) => {setPasswd(inputEl.target.value)}}
+                        autoComplete="off"
+                    />
+                    
         
-                <form className={`flex flex-wrap justify-center mt-4 gap-2 ${isMobile ? 'flex-col items-center': ''}`}>
-                <input
-                    className=" max-w-full rounded-lg border-gray-200 bg-white p-3 text-gray-700 shadow-sm transition focus:border-white focus:outline-none focus:ring focus: ring-secondary-focus"
-                    id="username"
-                    name="username"
-                    type="text"
-                    defaultValue={username}
-                    placeholder={t('username')}
-                    onChange={(inputEl) => setUsername(inputEl.target.value)}
-                    autoComplete="off"
-                />
-                
-                {/* 使用密码后若未设置NEXT_PUBLIC_DISABLE_E2EE，则开启e2ee, e2ee的key即为密码 */}
-                <input
-                    className=" max-w-full rounded-lg border-gray-200 bg-white p-3 text-gray-700 shadow-sm transition focus:border-white focus:outline-none focus:ring focus: ring-secondary-focus"
-                    id="passwd"
-                    name="passwd"
-                    type="password"
-                    defaultValue={passwd}
-                    placeholder="enter passwd if you need"
-                    onChange={(inputEl) => {setPasswd(inputEl.target.value)}}
-                    autoComplete="off"
-                />
-                
-    
-                <button
-                className="btn btn-primary rounded-lg text-white h-[48px]  w-fit border-none font-bold"
-                type="submit"
-                onClick={(e)=>{
-                    handleSubmit(e)
-                }}
-                disabled={!isValid}
-                >
-                👉 {t('Go')}
-                </button>
-                </form>
+                    <button
+                    className="btn btn-primary rounded-lg text-white h-[48px]  w-fit border-none font-bold"
+                    type="submit"
+                    onClick={(e)=>{
+                        handleSubmit(e)
+                    }}
+                    disabled={!isValid}
+                    >
+                    👉 {t('Go')}
+                    </button>
+                    </form>
+                </div>
         
                 <BaseSelect options={
                     backends?.map((item)=>{
@@ -427,7 +429,7 @@ export type LocalUserChoices = {
                         })
                         || []
                     }
-                    className='h-[48px] absolute bottom-[1rem]'
+                    className='h-[48px] mb-2 '
                     defaultValue={defaultBackend}
                     placeholder={t('selectBackend')}
                     onChange={(item)=>{

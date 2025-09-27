@@ -68,7 +68,7 @@ export default async function handleToken(req: NextApiRequest, res: NextApiRespo
     try{
         const participants = await roomService.listParticipants(roomName);
         if(participants.length == 0) throw error("room is empty");
-        const roomLRUItem: RoomMetadata = lru.get(roomName)
+        const roomLRUItem: RoomMetadata = lru.get(lruKey)
         if(roomLRUItem != undefined && roomLRUItem.maxParticipants > 0 &&
          participants.length >= roomLRUItem.maxParticipants){
             return res.status(500).json({ error: 'api.RoomFull'})
@@ -90,6 +90,7 @@ export default async function handleToken(req: NextApiRequest, res: NextApiRespo
         }
         // If room doesn't exist, user is room admin
         grant.roomAdmin = true;
+        console.log('room not exist, user is room admin')
         // set no passwrd
         if(lru.get(lruKey)){
             lru.delete(lruKey)
@@ -140,6 +141,6 @@ export default async function handleToken(req: NextApiRequest, res: NextApiRespo
       accessToken: token,
       isAdmin: grant.roomAdmin as boolean
     };
-
+    console.log('token result:', result)
     res.status(200).json(result);
 }

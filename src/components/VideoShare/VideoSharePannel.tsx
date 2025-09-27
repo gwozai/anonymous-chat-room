@@ -7,12 +7,14 @@ import { useCurState } from "@/lib/hooks/useCurState";
 import md5  from 'crypto-js/md5';
 import StreamIcon from "../Icons/StreamIcon";
 import { useTranslation } from "react-i18next";
+import { useBackend } from "@/lib/client-utils";
 export function ShareVideoPannel({showIcon,showText, ...props}: any) {
     const roomctx = useRoomContext();
     const isShareVideo = useIsShareVideo()
     const { t, i18n } = useTranslation()
     const mcurState = useCurState()
     const [shareUrl, setShareUrl] = useState("");
+    const {curBackend} = useBackend();
     
     const copyRTMPurl = () =>{
         if(process.env.NEXT_PUBLIC_RTMPKEY){
@@ -51,11 +53,15 @@ export function ShareVideoPannel({showIcon,showText, ...props}: any) {
                   ...mcurState?.roomMetadata,
                   videoShareUrl: vsu
                 } as RoomMetadata,
-                roomName: roomctx.name
+                roomName: roomctx.name,
+                backendLabel: curBackend?.label
             };
             const response = await fetch(url, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json",
+                    "authorization": mcurState.token?.accessToken ? 
+                    ("Bearer " + mcurState.token?.accessToken) : ''
+                 },
                 body: JSON.stringify(body),
             });
             if (response.status === 200) {

@@ -1,4 +1,4 @@
-import { compareObjects, deepClone } from "@/lib/client-utils";
+import { compareObjects, deepClone, useBackend } from "@/lib/client-utils";
 import { defaultAudioSetting, presets } from "@/lib/const";
 import { useObservableState } from "@/livekit-react-offical/hooks/internal";
 import { denoiseMethod$ } from "@/lib/observe/DenoiseMethodObs";
@@ -24,6 +24,7 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
     const ctx = useWebAudioContext()
     const { isNoiseFilterEnabled, setNoiseFilterEnabled, isNoiseFilterPending } =  useKrispNoiseFilter();
     const [curShareVideoPrest, setCurShareVideoPrest]  = useState(presets[0])
+    const {curBackend} = useBackend();
     
     useEffect(() => {
         const s = localStorage.getItem('shareVideoPrest') || JSON.stringify(presets[0])
@@ -116,7 +117,8 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
                     time: new Date().getTime(),
                     maxParticipants: Number(capacity)
                 } as RoomMetadata,
-                roomName: roomName
+                roomName: roomName,
+                backendLabel: curBackend?.label
             };
 
             const response = await fetch(url, {

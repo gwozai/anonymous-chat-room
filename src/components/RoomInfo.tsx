@@ -17,19 +17,19 @@ const DEFAULT_ROOM_INFO: RoomInfo = { num_participants: 0, hasPasswd: false, max
 
 export function RoomInfo({ roomName, join }: Props) {
     const [roomInfo, setRoomInfo] = useState<RoomInfo>(DEFAULT_ROOM_INFO);
-    const {prevBackend} = useBackend();
+    const {curBackend} = useBackend();
     const roominfo_after_enter = useRoomInfo()
     const { t, i18n } = useTranslation()
     const mcurState = useCurState()
     useEffect(() => {
-        console.log('Current prevBackend:', prevBackend); // 调试用
-    }, [prevBackend]);
+        console.log('Current curBackend:', curBackend); // 调试用
+    }, [curBackend]);
     
 
     const fetchRoomInfo = useCallback(async () => {
         
-            if(!prevBackend?.label) return
-            const res = await fetch(`/api/info?backendLabel=${prevBackend.label}&roomName=${roomName}`);
+            if(!curBackend?.label) return
+            const res = await fetch(`/api/info?backendLabel=${curBackend.label}&roomName=${roomName}`);
             const _roomInfo = (await res.json()) as RoomInfo;
             
             setRoomInfo(_roomInfo);
@@ -37,7 +37,7 @@ export function RoomInfo({ roomName, join }: Props) {
                 curState$.next({...mcurState, hassPass: _roomInfo.hasPasswd})
             }
         // }
-    }, [roomName, prevBackend?.label, roomInfo.hasPasswd]);
+    }, [roomName, curBackend?.label, roomInfo.hasPasswd]);
 
     const humanRoomName = useMemo(() => {
         return decodeURI(roomName);
