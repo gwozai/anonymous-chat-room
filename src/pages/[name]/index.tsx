@@ -24,7 +24,7 @@ import { WebAudioContext } from '@/lib/context/webAudioContex';
 import { useSetContext } from '@/lib/context/setContext';
 import { useTranslation } from 'react-i18next';
 import { useCurState } from '@/lib/hooks/useCurState';
-import { formatter } from '@/lib/chat-utils/formatter';
+
 import { useBackend } from '@/lib/client-utils';
 log.setDefaultLevel(LogLevel.warn);
 const Home: NextPage = () => {
@@ -244,7 +244,7 @@ const ActiveRoom = ({ roomName, userChoices, onLeave }: ActiveRoomProps) => {
           data-lk-theme="default"
         >
           <WebAudioContext.Provider value={audioContext}>
-            <VideoConference chatMessageFormatter={formatter} />
+            <VideoConference />
           </WebAudioContext.Provider>
           <DebugMode logLevel={LogLevel.warn} />
         </LiveKitRoom>

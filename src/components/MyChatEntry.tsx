@@ -1,4 +1,4 @@
-import { decoder } from '@/lib/chat-utils';
+
 import type { ReceivedChatMessage } from '@livekit/components-core';
 import { tokenize, createDefaultGrammar } from '@livekit/components-core';
 import * as React from 'react';
@@ -16,7 +16,7 @@ export type MessageFormatter = (message: string) => React.ReactNode;
 export interface ChatEntryProps extends React.HTMLAttributes<HTMLLIElement> {
   /** The chat massage object to display. */
   entry: ReceivedChatMessage;
-  lastEntry: ReceivedChatMessage;
+  lastEntry?: ReceivedChatMessage;
   /** Hide sender name. Useful when displaying multiple consecutive chat messages from the same person. */
   hideName?: boolean;
   /** Hide message timestamp. */
@@ -53,7 +53,7 @@ export const ChatEntry: (
 
     const name = entry.from?.name ?? entry.from?.identity;
     const lastName = lastEntry?.from?.name ?? lastEntry?.from?.identity;
-    const entityType = decoder(entry.message || "")?.type || 'text';   
+    const  entityType = entry?.attributes?.mimeType || 'text';
 
     return (
       <li
@@ -80,7 +80,31 @@ export const ChatEntry: (
             {!hideName && (name !== lastName) && <strong className="lk-participant-name">{name}</strong>}
             <div className='flex space-x-2'>
                 {
-                    entityType === 'img' && entry.attachedFiles?.map(
+                    entityType.indexOf('image') > -1 && (
+                        <div key={entry.id}>
+                            <img onClick={()=>{
+                                AlertConfirm({
+                                maskClosable: true,
+                                custom: (
+                                    <div className={'max-w-[95vw] max-h-[95vh] display-block'}>
+                                        <img 
+                                            key={entry.id}
+                                            src={entry.message}
+                                            alt={entry.id}
+                                        />
+                                    </div>
+                                )
+                            })}}
+                                className='max-w-[150px]'
+                                key={entry.id}
+                                src={entry.message}
+                                alt={entry.id}
+                            />
+                        </div>
+                    )
+                }
+                {
+                    entry.attachedFiles && entry.attachedFiles?.length > 0 && entry.attachedFiles?.map(
                         (file) =>
                             file.type.startsWith('image/') && (
                             <div key={file.name}>
@@ -107,14 +131,14 @@ export const ChatEntry: (
                         )
                 }
                 {
-                    entityType !== 'img' && 
-                        <div className='flex flex-col text-nowrap'>
+                    entityType === 'text' && 
+                        <div className='flex flex-col'>
                             {formattedMessage}
                         </div>
                 }
                 {(!hideTimestamp || hasBeenEdited) && entityType !== 'img' && (
                     <div className='flex flex-col justify-end  text-right text-nowrap'>
-                        <span className="lk-timestamp">
+                        <span className={entry.from?.isLocal ? 'lk-timestamp-local' : 'lk-timestamp-remote'}>
                             {hasBeenEdited && 'edited '}
                             {time.toLocaleTimeString(locale, { timeStyle: 'short' })}
                         </span>
@@ -128,9 +152,9 @@ export const ChatEntry: (
               file.type.startsWith('image/') && (
                 <img
                   style={{ maxWidth: '300px', maxHeight: '300px' }}
-                  key={file.name}
-                  src={URL.createObjectURL(file)}
-                  alt={file.name}
+                  key={entry.id}
+                  src={entry.message}
+                  alt={entry.id}
                 />
               ),
           )}

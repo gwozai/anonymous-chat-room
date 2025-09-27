@@ -1,12 +1,13 @@
 import { MessageEncoder, MessageDecoder, ChatMessage, ReceivedChatMessage,wasClickOutside } from '@livekit/components-core';
 import React from 'react';
-import { MessageFormatter, useChat, useMaybeLayoutContext } from '@livekit/components-react';
+import { MessageFormatter, useMaybeLayoutContext, useRoomContext } from '@livekit/components-react';
 import { ChatEntry } from '@/components/MyChatEntry'
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { DataPacket_Kind } from 'livekit-client';
 import { useCurState } from '@/lib/hooks/useCurState';
-import { encoder } from '@/lib/chat-utils';
+
+import { useChat } from '@/lib/hooks/useChat';
 /**
  * @internal
  */
@@ -48,11 +49,13 @@ export function Chat({ messageFormatter, ...props }: ChatProps) {
     const ulRef = React.useRef<HTMLUListElement>(null);
 
     const chatOptions = React.useMemo(() => {
-        return {};
+        return {
+            channelTopic: 'cxvadsf'
+        };
       }, []);
 
     const { send, chatMessages, isSending } = useChat(chatOptions);
-    
+    const room = useRoomContext()
       const layoutContext = useMaybeLayoutContext();
       const lastReadMsgAt = React.useRef<ChatMessage['timestamp']>(0);
     
@@ -64,7 +67,9 @@ export function Chat({ messageFormatter, ...props }: ChatProps) {
         event.preventDefault();
         if (inputRef.current && inputRef.current.value.trim() !== '') {
             if (send) {
-                await send(encoder(inputRef.current.value, 'text'))
+                await send(inputRef.current.value)
+                
+                // console.log(`Sent text with stream ID: ${info.id}`);
                 inputRef.current.value = '';
                 inputRef.current.focus();
             }
@@ -134,8 +139,7 @@ export function Chat({ messageFormatter, ...props }: ChatProps) {
                     fileInput.value = '';
                     return;
                 }
-
-                await send(encoder('', 'img'), {
+                await send('', {
                     attachments: Array.from(fileInput.files || []),
                 });
                 // 清空 input 以便重复上传同一文件
@@ -230,7 +234,7 @@ export function Chat({ messageFormatter, ...props }: ChatProps) {
             </div>
             {/* </form> */}
             <div className=' divider my-1' />
-            <ul className="overflow-y-hidden overflow-x-hidden h-full" ref={ulRef}>
+            <ul className="overflow-y-auto overflow-x-hidden h-full" ref={ulRef}>
                 {props.children
                     ? chatMessages.map((msg: any, idx: any) =>
                         cloneSingleChild(props.children, {
@@ -240,7 +244,7 @@ export function Chat({ messageFormatter, ...props }: ChatProps) {
                     )
                     : chatMessages.map((msg: any, idx: any) => {
                         return <ChatEntry key={idx} entry={msg}
-                         lastEntry={idx === 0 ? null : chatMessages[idx - 1]} messageFormatter={messageFormatter}/>
+                         lastEntry={idx === 0 ? undefined : chatMessages[idx - 1]} messageFormatter={messageFormatter}/>
                     }
                     )}
             </ul>
