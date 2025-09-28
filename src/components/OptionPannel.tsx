@@ -11,6 +11,7 @@ import SettingIcon from "./Icons/SettingIcon";
 import { useTranslation } from "react-i18next";
 import { useWebAudioContext } from "@/lib/context/webAudioContex";
 import { useDenoiseMethod } from "@/lib/hooks/useDenoise";
+import { curState$ } from '@/lib/observe/CurStateObs';
 export function OptionPanel({showIcon,showText, ...props}: any) {
     const roominfo_after_enter = useRoomInfo()
     const denoiseSetting = useDenoiseMethod()
@@ -26,9 +27,9 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
     
     useEffect(() => {
         const s = localStorage.getItem('shareVideoPrest') || JSON.stringify(presets[0])
-        setCurShareVideoPrest(JSON.parse(s || '{}'))
+        setCurShareVideoPrest(JSON.parse(s || JSON.stringify(presets[0])));
     }, [])
-    
+
     useEffect(() => {
         setLocalDenoiseConfig(denoiseSetting)
     }, [denoiseSetting])
@@ -65,10 +66,12 @@ export function OptionPanel({showIcon,showText, ...props}: any) {
         }
 
         //如果没有修改就不需要更新
-        if(compareObjects(localDenoiseConfig,denoiseSetting)) return
+        if(!compareObjects(localDenoiseConfig,denoiseSetting)) {
+            denoiseMethod$.next(deepClone(localDenoiseConfig))
+            localStorage.setItem('denoiseMethod', JSON.stringify(localDenoiseConfig))
+        }
 
-        denoiseMethod$.next(deepClone(localDenoiseConfig))
-        localStorage.setItem('denoiseMethod', JSON.stringify(localDenoiseConfig))
+        curState$.next({...mcurState, videoPreset: curShareVideoPrest})
         localStorage.setItem('shareVideoPrest', JSON.stringify(curShareVideoPrest))
     }
 

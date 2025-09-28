@@ -13,10 +13,12 @@ import { useMediaQuery, useObservableState } from '@/livekit-react-offical/hooks
 import { MediaDeviceMenu } from '@/components/MyMediaDeviceMenu';
 // import { MediaDeviceMenu } from '@livekit/components-react';
 import { presets } from '@/lib/const';
+import { curState$ } from '@/lib/observe/CurStateObs';
 import { OptionPanel } from './OptionPannel';
 import { ShareVideoPannel } from './VideoShare/VideoSharePannel';
 import CameraMicIcon from './Icons/CameraMicIcon';
 import { useTranslation } from 'react-i18next';
+import { useCurState } from '@/lib/hooks/useCurState';
 
 
 /** @public */
@@ -100,10 +102,13 @@ export function ControlBar({ variation, controls, ...props }: ControlBarProps) {
     setIsScreenShareEnabled(enabled);
   };
 
-  const getCurlVideoPrest = ()=>{
-    const s = localStorage.getItem('shareVideoPrest') || JSON.stringify(presets[0])
-    return JSON.parse(s)
-  }
+  const mcurState = useCurState()
+
+  React.useEffect(() => {
+      const s = localStorage.getItem('shareVideoPrest') || JSON.stringify(presets[0])
+      const curPreset =  JSON.parse(s) || presets[0]
+      curState$.next({...mcurState, videoPreset: curPreset})
+  }, [])
 
   const htmlProps = mergeProps({ className: 'lk-control-bar' }, props);
 
@@ -190,7 +195,7 @@ export function ControlBar({ variation, controls, ...props }: ControlBarProps) {
           className=' btn btn-primary' 
           style={{ color:"white"}}
           source={Track.Source.ScreenShare}
-          captureOptions={{ audio: true, selfBrowserSurface: 'include', resolution: getCurlVideoPrest() || presets[0].preset?.resolution}}
+          captureOptions={{ audio: true, selfBrowserSurface: 'include', resolution: mcurState.videoPreset?.preset?.resolution || presets[0].preset?.resolution}}
           showIcon={showIcon}
           onChange={onScreenShareChange}
         >
