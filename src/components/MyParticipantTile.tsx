@@ -238,7 +238,7 @@ function ParticipantTile(
         }
         <FocusToggle trackRef={trackReference} />
         {
-           focusTrack &&  trackReference.source !== Track.Source.Camera && <FullIcon onClick={fullscreen} className='volume-muter absolute top-1 left-1 cursor-pointer bg-black/50 rounded-sm ' />
+           focusTrack &&  trackReference.source === Track.Source.ScreenShare && <FullIcon onClick={fullscreen} className='volume-muter absolute top-1 left-1 cursor-pointer bg-black/50 rounded-sm ' />
         }
         </ParticipantContextIfNeeded>
       </TrackRefContextIfNeeded>
