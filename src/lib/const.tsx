@@ -4,35 +4,42 @@ let t = 0
 export const presets = [{
     w: 1280,
     h: 720,
-    bitrate: 3_000_000,
+    bitrate: 2_000_000,
     fps: 30,
     nickname: '720p30',
     preset: undefined as VideoPreset | undefined
 }, {
     w: 1280,
     h: 720,
-    bitrate: 6_000_000,
+    bitrate: 4_300_000,
     fps: 60,
     nickname: '720p60',
     preset: undefined as VideoPreset | undefined
 },{
     w: 1920,
     h: 1080,
-    bitrate: 10_000_000,
+    bitrate: 4_800_000,
+    fps: 30,
+    nickname: '1080p30',
+    preset: undefined as VideoPreset | undefined
+},,{
+    w: 1920,
+    h: 1080,
+    bitrate: 7_500_000,
     fps: 60,
     nickname: '1080p60',
     preset: undefined as VideoPreset | undefined
 },{
     w: 1920,
     h: 1080,
-    bitrate: 20_000_000,
+    bitrate: 8_500_000,
     fps: 60,
     nickname: '1080p60plus',
     preset: undefined as VideoPreset | undefined
 },{
     w: 3840,
     h: 2160,
-    bitrate: 20_000_000,
+    bitrate: 8_500_000,
     fps: 30,
     nickname: '4k30',
     preset: undefined as VideoPreset | undefined
