@@ -59,8 +59,8 @@ function MyApp({ Component, pageProps }: AppProps) {
             />
             <TopBar />
             <Component {...pageProps} />
-            <script type="text/javascript" src="https://quantil.jsdelivr.net/gh/tokamakz/wsPlayer/mp4box.all.min.js"></script>
-            <script type="text/javascript" src="https://quantil.jsdelivr.net/gh/tokamakz/wsPlayer/wsPlayer.js"></script>
+            <script type="text/javascript" src={process.env.NEXT_PUBLIC_WSPLAYER_JS_URL || 'https://quantil.jsdelivr.net/gh/tokamakz/wsPlayer/wsPlayer.js'}></script>
+            <script type="text/javascript" src={process.env.NEXT_PUBLIC_M4BOX_JS_URL || 'https://quantil.jsdelivr.net/gh/tokamakz/wsPlayer/mp4box.all.min.js'}></script>
             {/* <Script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></Script> */}
             {process.env.NEXT_PUBLIC_UMAMI_URL != undefined && process.env.NEXT_PUBLIC_UMAMI_URL != "" && (
                 <Script
@@ -81,12 +81,12 @@ function MyApp({ Component, pageProps }: AppProps) {
             }
             {
                 process.env.NEXT_PUBLIC_USE_SHAREVIDEO === 'true' && (
-                    <Script type="text/javascript" src="https://cdn.staticfile.org/flv.js/1.6.2/flv.min.js"></Script>
+                    <Script type="text/javascript" src={process.env.NEXT_PUBLIC_FLV_JS_URL || 'https://cdn.staticfile.org/flv.js/1.6.2/flv.min.js'}></Script>
                 )
             }
             {
                 process.env.NEXT_PUBLIC_USE_SHAREVIDEO === 'true' && (
-                    <Script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.6.13/hls.min.js"></Script>
+                    <Script type="text/javascript" src={process.env.NEXT_PUBLIC_HLS_JS_URL || 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.6.13/hls.min.js'}></Script>
                 )
             }
         </>
