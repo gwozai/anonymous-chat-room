@@ -195,7 +195,7 @@ export function ControlBar({ variation, controls, ...props }: ControlBarProps) {
           className=' btn btn-primary' 
           style={{ color:"white"}}
           source={Track.Source.ScreenShare}
-          captureOptions={{ audio: true, selfBrowserSurface: 'include', resolution: mcurState.videoPreset?.preset?.resolution || presets[0].preset?.resolution}}
+          captureOptions={{ audio: true, selfBrowserSurface: 'include',  resolution: mcurState.videoPreset?.preset?.resolution || presets[0].preset?.resolution}}
           showIcon={showIcon}
           onChange={onScreenShareChange}
         >

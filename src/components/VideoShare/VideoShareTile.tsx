@@ -36,6 +36,10 @@ export const VideoShareTile = ({
     return regex.test(sharedUrl)
   }, [sharedUrl])
 
+  const isZlmWebrtc = React.useMemo(()=>{
+    return sharedUrl.indexOf('index/api/webrtc') >= 0;
+  }, [sharedUrl])
+
   React.useEffect(()=>{
     if(!isWSMp4){
         return
@@ -85,9 +89,42 @@ export const VideoShareTile = ({
       };
   }, [sharedUrl, isWSMp4])
 
-  const isHLS = React.useMemo(()=>{
-    return checkIsHLS(sharedUrl)
-  }, [sharedUrl])
+React.useEffect(()=>{
+    if(!isZlmWebrtc) return
+
+    const ZLMRTCClient = (window as any).ZLMRTCClient;
+    const player = new ZLMRTCClient.Endpoint(
+        {
+            element: document.getElementById('player-zlmwebrtc-id'),// video 标签
+            debug: true,// 是否打印日志
+            zlmsdpUrl: sharedUrl,//流地址
+        }
+    );
+
+    player.on(ZLMRTCClient.Events.WEBRTC_ICE_CANDIDATE_ERROR,function(e)
+    {
+      // ICE 协商出错
+      console.log('ICE 协商出错');
+    });
+
+    player.on(ZLMRTCClient.Events.WEBRTC_ON_REMOTE_STREAMS,function(s)
+    {
+      //获取到了远端流，可以播放,如果element 为null 或者不传,可以在这里播放(如下注释代码)
+      /*
+        document.getElementById('video').srcObject=s;
+      */
+      console.log('播放成功',s);
+    });
+
+    player.on(ZLMRTCClient.Events.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED,function(e)
+    {
+      // offer anwser 交换失败
+      console.log('offer anwser 交换失败',e);
+      stop();
+    });
+}, [sharedUrl])
+
+
   
   return (
       <div style={{ position: 'relative' }} {...htmlProps}>
@@ -97,13 +134,18 @@ export const VideoShareTile = ({
             )
         }
         {
-            !isWSMp4 && !isWebrtc && (
-                <MyPlayer sharedUrl={sharedUrl}/> 
+            isZlmWebrtc && (
+                <video autoPlay muted controls id="player-zlmwebrtc-id"></video>
             )
         }
         {
             isWebrtc && (
                 <video autoPlay muted controls id="webrtc-sharevideo-container"></video>
+            )
+        }
+        {
+            !isWSMp4 && !isWebrtc && !isZlmWebrtc && (
+                <MyPlayer sharedUrl={sharedUrl}/> 
             )
         }
     </div>
